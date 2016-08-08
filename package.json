@@ -1,0 +1,19 @@
+{
+  "name": "ChatApp",
+  "version": "1.0.0",
+  "description": "Demo Chat App",
+  "main": "app.js",
+  "scripts": {
+    "server": "node app.js"
+  },
+  "author": "Kim Jin Sam",
+  "license": "Free",
+  "dependencies": {
+    "express": "^4.10.2",
+    "socket.io": "^1.3.5"
+  },
+  "devDependencies": {
+    "browserify": "^10.1.3",
+    "gulp": "^3.8.8"
+  }
+}

@@ -1,0 +1,107 @@
+<html>
+	<head>
+        <script type="text/javascript" src="/lib/jquery-1.12.4.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+        var meObj = (function(){
+            var myName = localStorage.getItem('myid');
+
+            var getMyName = function(){
+                if(!myName){
+                    myName = prompt('이름을 입력하세요.', '');
+                    localStorage.setItem('myid', myName)
+                }
+
+                return myName;
+            }
+            return{
+                getMyName : getMyName
+            }
+
+        }());
+
+		var socket = io();
+
+        socket.on('client_connect', function (data) {
+			console.log('client_connect');
+			console.log(data);
+
+            joinedUsers(data);
+            if(data)
+                $('body').append('</br>'+data);
+		});
+		socket.on('message', function (data) {
+			console.log('message');
+			console.log(data);
+            var messages = data.messages;
+            for(var i in messages)
+                $('body').append('</br>'+messages[i].user +' says: '+messages[i].message);
+		});
+        function outUsers(data) {
+            var userId = data.split(' ')[0];
+
+            $('#users').find('#' + userId).remove();
+        }
+        socket.on('client_disconnect', function (data) {
+            console.log('client_disconnect');
+            console.log(data);
+            outUsers(data);
+        });
+        function registerMyName(myName) {
+            var msg = myName;
+            var sendObj = {'type':'registerUserName', 'message':msg}
+            if(msg) {
+                socket.send(JSON.stringify(sendObj));
+            }
+        }
+        $(document).ready(function(){
+            $('#send').click(
+             sendMsg
+            );
+            $('form').on('submit', function () {
+                return false;
+            });
+            var myName = meObj.getMyName();
+            registerMyName(myName)
+            $('#myid').val(myName);
+        });
+
+        var sendMsg =function() {
+            var msg = $('#field').val()
+            var sendObj = {'type':'message', 'message':msg}
+            if(msg) {
+                socket.send(JSON.stringify(sendObj));
+                $('body').append('</br>You say: '+msg);
+                $('#field').val('');
+            }
+        }
+        function joinedUsers(data) {
+            var userId = data.split(' ')[0];
+            var $li = $('<li/>');
+            $li.attr('id', userId);
+            $li.text(userId);
+            $('#users').append($li)
+        }
+
+        var removeLocalstorage = function(){
+            localStorage.clear()
+        }
+        var logs = function(m){
+            $('#logs').append('<li>'+m+'</li>')
+        }
+
+
+		</script>
+	</head>
+	<body>
+        <input id="myid">
+        <button onclick="removeLocalstorage()">localStroage 삭제</button>
+        <form>
+            <input id='field' type="text" />
+            <input id='send' type="submit" value="send" />
+        </form>
+        <ul id="logs"></ul>
+        <ul id="users">
+        </ul>
+	</body>
+</html>
