@@ -30,7 +30,7 @@ io.sockets.on('connection', function(client){
     	console.log(message);
         var obj = JSON.parse(message)
 
-
+        // wntj
         switch(obj.type){
             case 'registerUserName':{
                 clientId = obj.message;
